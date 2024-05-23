@@ -60,6 +60,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     documento = Document(caminho_docx)
     conteudo_markdown = []
 
+    # Definindo a função para adicionar parágrafos
     def adicionar_paragrafo(paragrafo):
         texto = obter_texto_paragrafo(paragrafo)
         if paragrafo.style.name.startswith('Heading'):
@@ -73,6 +74,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     contador_imagem = 1
     mapa_imagens = {}
 
+    # Processamento de imagens
     for relacao in documento.part.rels.values():
         if "image" in relacao.reltype:
             parte_imagem = relacao._target
@@ -83,21 +85,25 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
             caminho_imagem_relativa = os.path.relpath(caminho_imagem_salva, os.path.dirname(caminho_md_saida))
             mapa_imagens[relacao.rId] = f"![{nome_imagem}]({caminho_imagem_relativa})\n"
 
+    # Processamento de parágrafos
     for paragrafo in documento.paragraphs:
-        for run in paragrafo.runs:
-            if run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict"):
-                for rId in mapa_imagens:
-                    if run._element.xpath(f".//*[@r:embed='{rId}']"):
-                        conteudo_markdown.append(mapa_imagens[rId])
-                        break
-            else:
-                adicionar_paragrafo(paragrafo)
+        # Verificar se o parágrafo possui imagens
+        tem_imagem = any(run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict") for run in paragrafo.runs)
+        if tem_imagem:
+            for run in paragrafo.runs:
+                if run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict"):
+                    for rId in mapa_imagens:
+                        if run._element.xpath(f".//*[@r:embed='{rId}']"):
+                            conteudo_markdown.append(mapa_imagens[rId])
+                            break
+        else:
+            adicionar_paragrafo(paragrafo)
 
+    # Processamento de tabelas
     for tabela in documento.tables:
         conteudo_markdown.append("\n")
         # Extrair cabeçalhos da tabela
-        celulas_cabecalho = tabela.rows[0].cells
-        cabecalhos = [celula.text.strip() for celula in celulas_cabecalho]
+        cabecalhos = [celula.text.strip() for celula in tabela.rows[0].cells]
         conteudo_markdown.append("| " + " | ".join(cabecalhos) + " |")
         conteudo_markdown.append("| " + " | ".join(["---"] * len(cabecalhos)) + " |")
         # Extrair linhas da tabela
@@ -106,6 +112,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
             conteudo_markdown.append("| " + " | ".join(dados_linha) + " |")
         conteudo_markdown.append("\n")
 
+    # Escrever o conteúdo no arquivo Markdown
     with open(caminho_md_saida, "w", encoding="utf-8") as arquivo_md:
         arquivo_md.write("\n".join(conteudo_markdown))
 
