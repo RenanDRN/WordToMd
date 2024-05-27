@@ -4,6 +4,8 @@ from tkinter import filedialog, messagebox
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import re
+from docx.oxml.table import CT_Tbl
+from docx.oxml.text.paragraph import CT_P
 
 def obter_texto_paragrafo(para):
     """
@@ -71,6 +73,19 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
         else:
             conteudo_markdown.append(f"{texto}\n")
 
+    # Definindo a função para adicionar tabelas
+    def adicionar_tabela(tabela):
+        conteudo_markdown.append("\n")
+        # Extrair cabeçalhos da tabela
+        cabecalhos = [celula.text.strip() for celula in tabela.rows[0].cells]
+        conteudo_markdown.append("| " + " | ".join(cabecalhos) + " |")
+        conteudo_markdown.append("| " + " | ".join(["---"] * len(cabecalhos)) + " |")
+        # Extrair linhas da tabela
+        for linha in tabela.rows[1:]:
+            dados_linha = [celula.text.strip() for celula in linha.cells]
+            conteudo_markdown.append("| " + " | ".join(dados_linha) + " |")
+        conteudo_markdown.append("\n")
+
     contador_imagem = 1
     mapa_imagens = {}
 
@@ -85,32 +100,27 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
             caminho_imagem_relativa = os.path.relpath(caminho_imagem_salva, os.path.dirname(caminho_md_saida))
             mapa_imagens[relacao.rId] = f"![{nome_imagem}]({caminho_imagem_relativa})\n"
 
-    # Processamento de parágrafos
-    for paragrafo in documento.paragraphs:
-        # Verificar se o parágrafo possui imagens
-        tem_imagem = any(run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict") for run in paragrafo.runs)
-        if tem_imagem:
-            for run in paragrafo.runs:
-                if run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict"):
-                    for rId in mapa_imagens:
-                        if run._element.xpath(f".//*[@r:embed='{rId}']"):
-                            conteudo_markdown.append(mapa_imagens[rId])
-                            break
-        else:
-            adicionar_paragrafo(paragrafo)
-
-    # Processamento de tabelas
-    for tabela in documento.tables:
-        conteudo_markdown.append("\n")
-        # Extrair cabeçalhos da tabela
-        cabecalhos = [celula.text.strip() for celula in tabela.rows[0].cells]
-        conteudo_markdown.append("| " + " | ".join(cabecalhos) + " |")
-        conteudo_markdown.append("| " + " | ".join(["---"] * len(cabecalhos)) + " |")
-        # Extrair linhas da tabela
-        for linha in tabela.rows[1:]:
-            dados_linha = [celula.text.strip() for celula in linha.cells]
-            conteudo_markdown.append("| " + " | ".join(dados_linha) + " |")
-        conteudo_markdown.append("\n")
+    # Processamento do conteúdo do documento
+    for elemento in documento.element.body:
+        if isinstance(elemento, CT_P):
+            for paragrafo in documento.paragraphs:
+                if paragrafo._element == elemento:
+                    tem_imagem = any(run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict") for run in paragrafo.runs)
+                    if tem_imagem:
+                        for run in paragrafo.runs:
+                            if run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict"):
+                                for rId in mapa_imagens:
+                                    if run._element.xpath(f".//*[@r:embed='{rId}']"):
+                                        conteudo_markdown.append(mapa_imagens[rId])
+                                        break
+                    else:
+                        adicionar_paragrafo(paragrafo)
+                    break
+        elif isinstance(elemento, CT_Tbl):
+            for tabela in documento.tables:
+                if tabela._element == elemento:
+                    adicionar_tabela(tabela)
+                    break
 
     # Escrever o conteúdo no arquivo Markdown
     with open(caminho_md_saida, "w", encoding="utf-8") as arquivo_md:
