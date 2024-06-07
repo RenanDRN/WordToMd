@@ -50,7 +50,7 @@ def salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem, nome_arquivo):
     caminho_imagem = os.path.join(diretorio_imagem, nome_imagem)
     with open(caminho_imagem, "wb") as arquivo_imagem:
         arquivo_imagem.write(bytes_imagem)
-    return caminho_imagem
+    return ".\\" + caminho_imagem
 
 def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho):
     """
