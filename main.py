@@ -6,6 +6,7 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import re
 from docx.oxml.table import CT_Tbl
 from docx.oxml.text.paragraph import CT_P
+from datetime import datetime
 
 def obter_texto_paragrafo(para):
     """
@@ -31,7 +32,7 @@ def obter_texto_paragrafo(para):
         texto = para.text
     return texto
 
-def salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem):
+def salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem, nome_arquivo):
     """
     Função para salvar uma imagem em um diretório específico.
 
@@ -45,12 +46,13 @@ def salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem):
     """
     if not os.path.exists(diretorio_imagem):
         os.makedirs(diretorio_imagem)
+    nome_imagem = f"{nome_arquivo}_{nome_imagem}"
     caminho_imagem = os.path.join(diretorio_imagem, nome_imagem)
     with open(caminho_imagem, "wb") as arquivo_imagem:
         arquivo_imagem.write(bytes_imagem)
     return caminho_imagem
 
-def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem):
+def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho):
     """
     Função para converter um documento DOCX para Markdown.
 
@@ -61,6 +63,31 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     """
     documento = Document(caminho_docx)
     conteudo_markdown = []
+
+    # Adicionando o cabeçalho do arquivo Markdown
+    data_atual = datetime.now()
+    dia = f'{data_atual.day:02d}'
+    mes = f'{data_atual.month:02d}'
+    ano = f'{data_atual.year:04d}'
+
+    if(tipo_cabecalho == "indice"):
+        conteudo_markdown.append('---')
+        conteudo_markdown.append('title: "Titulo da sua documentação"')
+        conteudo_markdown.append('type: docs')
+        conteudo_markdown.append('last_updated: ')
+        conteudo_markdown.append(f'\tdate: "{mes}/{dia}/{ano}"')
+        conteudo_markdown.append('\tauthor: "Seu nome"')
+        conteudo_markdown.append('sidebar_position: 1')
+        conteudo_markdown.append('---\n')
+    else:
+        conteudo_markdown.append('---')
+        conteudo_markdown.append('title: "Titulo da sua documentação"')
+        conteudo_markdown.append('type: docs')
+        conteudo_markdown.append('menu: ')
+        conteudo_markdown.append('\tmain:')
+        conteudo_markdown.append('\t\tsidebar_position: 1')
+        conteudo_markdown.append('description: "Descrição da sua documentação"')
+        conteudo_markdown.append('---\n')
 
     # Definindo a função para adicionar parágrafos
     def adicionar_paragrafo(paragrafo):
@@ -96,7 +123,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
             bytes_imagem = parte_imagem.blob
             nome_imagem = f"imagem{contador_imagem}.png"
             contador_imagem += 1
-            caminho_imagem_salva = salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem)
+            caminho_imagem_salva = salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem, nome_arquivo)
             caminho_imagem_relativa = os.path.relpath(caminho_imagem_salva, os.path.dirname(caminho_md_saida))
             mapa_imagens[relacao.rId] = f"![{nome_imagem}]({caminho_imagem_relativa})\n"
 
@@ -132,10 +159,12 @@ def iniciar_conversao():
     """
     try:
         caminho_docx = filedialog.askopenfilename(filetypes=[("Arquivos Word", "*.docx")])
+        nome_arquivo = os.path.splitext(os.path.basename(caminho_docx))[0]
         diretorio_saida = filedialog.askdirectory()
-        caminho_md_saida = os.path.join(diretorio_saida, "saida.md")
-        diretorio_imagem = os.path.join(diretorio_saida, "media")
-        converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem)
+        caminho_md_saida = os.path.join(diretorio_saida, f"{nome_arquivo}.md")
+        diretorio_imagem = os.path.join(diretorio_saida, f"img_{nome_arquivo}")
+        tipo_cabecalho = var.get()
+        converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho)
         messagebox.showinfo("Sucesso", "Conversão realizada com sucesso!")
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
@@ -143,6 +172,13 @@ def iniciar_conversao():
 if __name__ == "__main__":
     raiz = tk.Tk()
     raiz.geometry("300x150")
+
+    var = tk.StringVar(value = "indice")
+    r1 = tk.Radiobutton(raiz, text="Índice", variable=var, value="indice")
+    r1.pack()
+    r2 = tk.Radiobutton(raiz, text="Sub Índice", variable=var, value="subindice")
+    r2.pack()
+
     botao_converter = tk.Button(raiz, text="Converter Arquivo Word Para MarkDown", command=iniciar_conversao)
     botao_converter.pack()
     raiz.mainloop()

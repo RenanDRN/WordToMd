@@ -1,3 +1,3 @@
 
-Conversor de arquivos Word para a linguagem MarkDown
+Conversor de arquivos Word para a linguagem MarkDown com formatações utilizadas para documentações Docusaurus
 
