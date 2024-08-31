@@ -1,12 +1,16 @@
 import os
-import tkinter as tk
+import tkinter
 from tkinter import filedialog, messagebox
+from tkinter import *
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import re
 from docx.oxml.table import CT_Tbl
 from docx.oxml.text.paragraph import CT_P
 from datetime import datetime
+import tkinter.messagebox
+import customtkinter
+from PIL import Image, ImageTk
 
 def obter_texto_paragrafo(para):
     """
@@ -169,16 +173,145 @@ def iniciar_conversao():
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
 
+#if __name__ == "__main__":
+  #  raiz = tk.Tk()
+ #   raiz.geometry("300x150")
+#
+#    var = tk.StringVar(value = "indice")
+    #r1 = tk.Radiobutton(raiz, text="Índice", variable=var, value="indice")
+   # r1.pack()
+  #  r2 = tk.Radiobutton(raiz, text="Sub Índice", variable=var, value="subindice")
+ #   r2.pack()
+#
+ #   botao_converter = tk.Button(raiz, text="Converter Arquivo Word Para MarkDown", command=iniciar_conversao)
+ #   botao_converter.pack()
+#    raiz.mainloop()
+
+
+
+
+
+from PIL import Image
+import customtkinter
+import tkinter
+
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+
+        # configure window
+        self.title("WordToMd")
+        self.geometry(f"{1100}x{580}")
+
+        # configure grid layout (2x1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # create sidebar frame with widgets
+        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, rowspan=1, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+
+        # Load and add the image above the text "CustomTkinter"
+        imagem = Image.open("./img/novo-logo-itau-png-sem-fundo.png")  # Substitua pelo caminho da sua imagem
+        imagem = imagem.resize((150, 150), Image.LANCZOS)  # Ajuste o tamanho conforme necessário
+        self.logo = customtkinter.CTkImage(light_image=imagem, size=(150, 150))  # Usar CTkImage com tamanho especificado
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, image=self.logo, text="")  # Remover o texto
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        
+        self.logo_label_text = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label_text.grid(row=1, column=0, padx=20, pady=(10, 10))
+        
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_3.grid(row=4, column=0, padx=20, pady=10)
+        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Aparência:", anchor="w")
+        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
+                                                                       command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
+        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Escala do aplicativo:", anchor="w")
+        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%", "130%"],
+                                                               command=self.change_scaling_event)
+        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
+
+        # create frame for header options
+        self.header_frame = customtkinter.CTkFrame(self)
+        self.header_frame.grid(row=0, column=1, padx=(20, 10), pady=(20, 20), sticky="nsew")
+
+        # Add title label
+        self.options_label = customtkinter.CTkLabel(self.header_frame, text="Selecione o tipo de cabeçalho:", font=customtkinter.CTkFont(size=16, weight="bold"))
+        self.options_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+
+        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.header_frame, dynamic_resizing=False,
+                                                        values=["Topico", "Sub-Topico"],
+                                                        command=self.update_textbox)
+        self.optionmenu_1.grid(row=1, column=0, padx=20, pady=(10, 10))
+
+        # Add dynamic textbox with increased height
+        self.dynamic_textbox = customtkinter.CTkTextbox(self.header_frame, width=250, height=250)
+        self.dynamic_textbox.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="nsew")
+
+        # create frame for main textbox
+        self.textbox_frame = customtkinter.CTkFrame(self)
+        self.textbox_frame.grid(row=0, column=2, padx=(10, 20), pady=(20, 20), sticky="nsew")
+
+        # create main textbox
+        self.textbox = customtkinter.CTkTextbox(self.textbox_frame, width=250)
+        self.textbox.grid(row=0, column=0, padx=20, pady=(20, 20), sticky="nsew")
+
+        # set default values
+        self.sidebar_button_3.configure(state="disabled", text="Disabled CTkButton")
+        self.appearance_mode_optionemenu.set("Dark")
+        self.scaling_optionemenu.set("100%")
+        self.optionmenu_1.set("Topico")
+        self.textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
+
+    def open_input_dialog_event(self):
+        dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
+        print("CTkInputDialog:", dialog.get_input())
+
+    def change_appearance_mode_event(self, new_appearance_mode: str):
+        customtkinter.set_appearance_mode(new_appearance_mode)
+
+    def change_scaling_event(self, new_scaling: str):
+        new_scaling_float = int(new_scaling.replace("%", "")) / 100
+        customtkinter.set_widget_scaling(new_scaling_float)
+
+    def sidebar_button_event(self):
+        print("sidebar_button click")
+
+    def update_textbox(self, value):
+        self.dynamic_textbox.delete("1.0", "end")
+        conteudo_markdown = []
+        mes, dia, ano = "01", "01", "2023"  # Exemplo de data, você pode ajustar conforme necessário
+
+        if value == "Topico":
+            conteudo_markdown.append('---')
+            conteudo_markdown.append('title: "Titulo da sua documentação"')
+            conteudo_markdown.append('type: docs')
+            conteudo_markdown.append('last_updated: ')
+            conteudo_markdown.append(f'\tdate: "{mes}/{dia}/{ano}"')
+            conteudo_markdown.append('\tauthor: "Seu nome"')
+            conteudo_markdown.append('sidebar_position: 1')
+            conteudo_markdown.append('---\n')
+        else:
+            conteudo_markdown.append('---')
+            conteudo_markdown.append('title: "Titulo da sua documentação"')
+            conteudo_markdown.append('type: docs')
+            conteudo_markdown.append('menu: ')
+            conteudo_markdown.append('\tmain:')
+            conteudo_markdown.append('\t\tsidebar_position: 1')
+            conteudo_markdown.append('description: "Descrição da sua documentação"')
+            conteudo_markdown.append('---\n')
+
+        self.dynamic_textbox.insert("1.0", "\n".join(conteudo_markdown))
+
 if __name__ == "__main__":
-    raiz = tk.Tk()
-    raiz.geometry("300x150")
-
-    var = tk.StringVar(value = "indice")
-    r1 = tk.Radiobutton(raiz, text="Índice", variable=var, value="indice")
-    r1.pack()
-    r2 = tk.Radiobutton(raiz, text="Sub Índice", variable=var, value="subindice")
-    r2.pack()
-
-    botao_converter = tk.Button(raiz, text="Converter Arquivo Word Para MarkDown", command=iniciar_conversao)
-    botao_converter.pack()
-    raiz.mainloop()
+    app = App()
+    app.mainloop()
