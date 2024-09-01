@@ -158,35 +158,41 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
         arquivo_md.write("\n".join(conteudo_markdown))
 
 def iniciar_conversao():
-    """
-    Função para iniciar o processo de conversão de DOCX para Markdown.
-    """
     try:
         caminho_docx = filedialog.askopenfilename(filetypes=[("Arquivos Word", "*.docx")])
         nome_arquivo = os.path.splitext(os.path.basename(caminho_docx))[0]
         diretorio_saida = filedialog.askdirectory()
         caminho_md_saida = os.path.join(diretorio_saida, f"{nome_arquivo}.md")
         diretorio_imagem = os.path.join(diretorio_saida, f"img_{nome_arquivo}")
-        tipo_cabecalho = var.get()
+        tipo_cabecalho = "indice"  # Exemplo fixo, ajuste conforme necessário
         converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho)
         messagebox.showinfo("Sucesso", "Conversão realizada com sucesso!")
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
 
-#if __name__ == "__main__":
-  #  raiz = tk.Tk()
- #   raiz.geometry("300x150")
-#
-#    var = tk.StringVar(value = "indice")
-    #r1 = tk.Radiobutton(raiz, text="Índice", variable=var, value="indice")
-   # r1.pack()
-  #  r2 = tk.Radiobutton(raiz, text="Sub Índice", variable=var, value="subindice")
- #   r2.pack()
-#
- #   botao_converter = tk.Button(raiz, text="Converter Arquivo Word Para MarkDown", command=iniciar_conversao)
- #   botao_converter.pack()
-#    raiz.mainloop()
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("WordToMd")
+        self.geometry(f"{1100}x{580}")
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, rowspan=1, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        imagem = Image.open("./img/novo-logo-itau-png-sem-fundo.png")
+        imagem = imagem.resize((150, 150), Image.LANCZOS)
+        self.logo = ImageTk.PhotoImage(imagem)
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, image=self.logo, text="")
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.logo_label_text = customtkinter.CTkLabel(self.sidebar_frame, text="WordToMd", font=("Arial", 20, "bold"))
+        self.logo_label_text.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Ler Arquivo", command=self.ler_arquivo)
+        self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
 
+    def ler_arquivo(self):
+        iniciar_conversao()
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
