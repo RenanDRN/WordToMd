@@ -11,6 +11,7 @@ from datetime import datetime
 import tkinter.messagebox
 import customtkinter
 from PIL import Image, ImageTk
+import sys
 
 def obter_texto_paragrafo(para):
     """
@@ -193,6 +194,17 @@ class App(customtkinter.CTk):
 
     def ler_arquivo(self):
         iniciar_conversao()
+
+def resource_path(relative_path):
+    """ Obtenha o caminho absoluto para o recurso, funciona para dev e para PyInstaller """
+    try:
+        # PyInstaller cria uma pasta temporária e armazena o caminho nela
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -212,10 +224,11 @@ class App(customtkinter.CTk):
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
 
         # Load and add the image above the text "WordToMd"
-        imagem = Image.open("./img/novo-logo-itau-png-sem-fundo.png")  # Substitua pelo caminho da sua imagem
-        imagem = imagem.resize((150, 150), Image.LANCZOS)  # Ajuste o tamanho conforme necessário
-        self.logo = customtkinter.CTkImage(light_image=imagem, size=(150, 150))  # Usar CTkImage com tamanho especificado
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, image=self.logo, text="")  # Remover o texto
+        imagem_path = resource_path("img/novo-logo-itau-png-sem-fundo.png")  # Use resource_path para obter o caminho correto
+        imagem = Image.open(imagem_path)
+        imagem = imagem.resize((150, 150), Image.LANCZOS)
+        self.logo = customtkinter.CTkImage(light_image=imagem, size=(150, 150))
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, image=self.logo, text="")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         self.logo_label_text = customtkinter.CTkLabel(self.sidebar_frame, text="WordToMd", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -324,7 +337,6 @@ class App(customtkinter.CTk):
 
         self.dynamic_textbox.insert("1.0", "\n".join(conteudo_markdown))
         self.dynamic_textbox.configure(state="disabled")
-
 if __name__ == "__main__":
     app = App()
     app.mainloop()
