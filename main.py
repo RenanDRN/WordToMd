@@ -75,7 +75,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     mes = f'{data_atual.month:02d}'
     ano = f'{data_atual.year:04d}'
 
-    if(tipo_cabecalho == "indice"):
+    if(tipo_cabecalho == "Topico"):
         conteudo_markdown.append('---')
         conteudo_markdown.append('title: "Titulo da sua documentação"')
         conteudo_markdown.append('type: docs')
@@ -158,42 +158,17 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     with open(caminho_md_saida, "w", encoding="utf-8") as arquivo_md:
         arquivo_md.write("\n".join(conteudo_markdown))
 
-def iniciar_conversao():
+def iniciar_conversao(tipo_cabecalho):
     try:
         caminho_docx = filedialog.askopenfilename(filetypes=[("Arquivos Word", "*.docx")])
         nome_arquivo = os.path.splitext(os.path.basename(caminho_docx))[0]
         diretorio_saida = filedialog.askdirectory()
         caminho_md_saida = os.path.join(diretorio_saida, f"{nome_arquivo}.md")
         diretorio_imagem = os.path.join(diretorio_saida, f"img_{nome_arquivo}")
-        tipo_cabecalho = "indice"  # Exemplo fixo, ajuste conforme necessário
         converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho)
         messagebox.showinfo("Sucesso", "Conversão realizada com sucesso!")
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
-
-class App(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("WordToMd")
-        self.geometry(f"{1100}x{580}")
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure(2, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=1, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        imagem = Image.open("./img/novo-logo-itau-png-sem-fundo.png")
-        imagem = imagem.resize((150, 150), Image.LANCZOS)
-        self.logo = ImageTk.PhotoImage(imagem)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, image=self.logo, text="")
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.logo_label_text = customtkinter.CTkLabel(self.sidebar_frame, text="WordToMd", font=("Arial", 20, "bold"))
-        self.logo_label_text.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Ler Arquivo", command=self.ler_arquivo)
-        self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
-
-    def ler_arquivo(self):
-        iniciar_conversao()
 
 def resource_path(relative_path):
     """ Obtenha o caminho absoluto para o recurso, funciona para dev e para PyInstaller """
@@ -288,7 +263,6 @@ class App(customtkinter.CTk):
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
-        self.optionmenu_1.set("Topico")
 
     def open_input_dialog_event(self):
         dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
@@ -305,7 +279,8 @@ class App(customtkinter.CTk):
         print("sidebar_button click")
 
     def ler_arquivo(self):
-        iniciar_conversao()
+        tipo_cabecalho = self.optionmenu_1.get()
+        iniciar_conversao(tipo_cabecalho)
 
     def sair(self):
         self.quit()
@@ -337,6 +312,7 @@ class App(customtkinter.CTk):
 
         self.dynamic_textbox.insert("1.0", "\n".join(conteudo_markdown))
         self.dynamic_textbox.configure(state="disabled")
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
