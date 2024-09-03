@@ -315,7 +315,12 @@ class App(customtkinter.CTk):
         self.dynamic_textbox.configure(state="normal")
         self.dynamic_textbox.delete("1.0", "end")
         conteudo_markdown = []
-        mes, dia, ano = "01", "01", "2023"  # Exemplo de data, você pode ajustar conforme necessário
+
+        # Obter a data atual
+        data_atual = datetime.now()
+        dia = f'{data_atual.day:02d}'
+        mes = f'{data_atual.month:02d}'
+        ano = f'{data_atual.year:04d}'
 
         if value == "Topico":
             conteudo_markdown.append('---')
