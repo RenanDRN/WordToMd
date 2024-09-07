@@ -68,6 +68,23 @@ def salvar_imagem(bytes_imagem, diretorio_imagem, nome_imagem, nome_arquivo):
         arquivo_imagem.write(bytes_imagem)
     return ".\\" + caminho_imagem
 
+# Função para identificar e formatar links em um texto.
+def formatar_link(texto):
+    """
+    Função para identificar e formatar links em um texto.
+
+    Args:
+        texto (str): Texto contendo URLs.
+
+    Returns:
+        str: Texto com URLs formatadas em Markdown.
+    """
+    # Expressão regular para identificar URLs
+    url_pattern = re.compile(r'(http[s]?://[^\s]+)')
+    # Substituir todas as URLs pelo formato desejado
+    texto_formatado = url_pattern.sub(r'[url](\1)', texto)
+    return texto_formatado
+
 # Função para converter um documento DOCX para Markdown.
 def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo, tipo_cabecalho):
     """
@@ -110,6 +127,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
     # Função para adicionar parágrafos ao conteúdo Markdown
     def adicionar_paragrafo(paragrafo):
         texto = obter_texto_paragrafo(paragrafo)
+        texto = formatar_link(texto)  # Formatar links no texto do parágrafo
         if paragrafo.style.name.startswith('Heading'):
             nivel = int(re.search(r'\d+', paragrafo.style.name).group())
             conteudo_markdown.append(f"{'#' * nivel} {texto}\n")
