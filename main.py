@@ -12,6 +12,7 @@ import tkinter.messagebox
 import customtkinter
 from PIL import Image, ImageTk
 import sys
+import tldextract
 
 # Função para obter o texto de um parágrafo do documento DOCX, mantendo o estilo de negrito e itálico quando aplicado.
 def obter_texto_paragrafo(para):
@@ -81,8 +82,14 @@ def formatar_link(texto):
     """
     # Expressão regular para identificar URLs
     url_pattern = re.compile(r'(http[s]?://[^\s]+)')
+    
+    def substituir_url(match):
+        url = match.group(0)
+        dominio = tldextract.extract(url).registered_domain
+        return f'[{dominio}]({url})'
+    
     # Substituir todas as URLs pelo formato desejado
-    texto_formatado = url_pattern.sub(r'[url](\1)', texto)
+    texto_formatado = url_pattern.sub(substituir_url, texto)
     return texto_formatado
 
 # Função para converter um documento DOCX para Markdown.
