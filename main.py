@@ -212,6 +212,26 @@ def iniciar_conversao(tipo_cabecalho):
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
 
+def iniciar_conversao_em_lote(tipo_cabecalho):
+    try:
+        # Abre um diálogo para selecionar o diretório contendo arquivos DOCX
+        diretorio_docx = filedialog.askdirectory()
+        # Abre um diálogo para selecionar o diretório de saída
+        diretorio_saida = filedialog.askdirectory()
+        
+        for nome_arquivo in os.listdir(diretorio_docx):
+            if nome_arquivo.endswith(".docx"):
+                caminho_docx = os.path.join(diretorio_docx, nome_arquivo)
+                nome_arquivo_sem_extensao = os.path.splitext(nome_arquivo)[0]
+                caminho_md_saida = os.path.join(diretorio_saida, f"{nome_arquivo_sem_extensao}.md")
+                diretorio_imagem = os.path.join(diretorio_saida, f"img_{nome_arquivo_sem_extensao}")
+                # Chama a função de conversão para cada arquivo DOCX
+                converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_imagem, nome_arquivo_sem_extensao, tipo_cabecalho)
+        
+        messagebox.showinfo("Sucesso", "Conversão em lote realizada com sucesso!")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
+
 # Função para obter o caminho absoluto para o recurso, funciona para dev e para PyInstaller
 def resource_path(relative_path):
     """ Obtenha o caminho absoluto para o recurso, funciona para dev e para PyInstaller """
@@ -255,19 +275,22 @@ class App(customtkinter.CTk):
         
         self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Ler Arquivo", command=self.ler_arquivo)
         self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Sair", command=self.sair)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Ler Varios Arquivos", command=self.ler_varios_arquivos)
         self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, text="Sair", command=self.sair)
+        self.sidebar_button_3.grid(row=4, column=0, padx=10, pady=5)
+        
         
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Aparência:", anchor="w")
-        self.appearance_mode_label.grid(row=4, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
                                                                        command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=5, column=0, padx=20, pady=(10, 10))
+        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Escala do aplicativo:", anchor="w")
-        self.scaling_label.grid(row=6, column=0, padx=20, pady=(10, 0))
+        self.scaling_label.grid(row=8, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%", "130%"],
                                                                command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=7, column=0, padx=20, pady=(10, 20))
+        self.scaling_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 20))
 
         # Criação do frame para opções de cabeçalho
         self.header_frame = customtkinter.CTkFrame(self)
@@ -330,6 +353,11 @@ class App(customtkinter.CTk):
     def ler_arquivo(self):
         tipo_cabecalho = self.optionmenu_1.get()
         iniciar_conversao(tipo_cabecalho)
+
+    def ler_varios_arquivos(self):
+        tipo_cabecalho = self.optionmenu_1.get()
+        iniciar_conversao_em_lote(tipo_cabecalho)
+
 
     # Função para sair do aplicativo
     def sair(self):
