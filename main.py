@@ -27,24 +27,16 @@ def obter_texto_paragrafo(para):
         str: Texto do parágrafo com estilos de formatação aplicados.
     """
     texto = ""
-    if para.runs:
-        bold = False
-        italic = False
-        for run in para.runs:
-            if run.bold:
-                bold = True
-            if run.italic:
-                italic = True
-            texto += run.text
-        
-        if bold and italic:
-            texto = f"___{texto}___"
-        elif bold:
-            texto = f"**{texto}**"
-        elif italic:
-            texto = f"_{texto}_"
-    else:
-        texto = para.text
+    for run in para.runs:
+        run_text = run.text
+        if run_text.strip():  # Verifica se o texto não é apenas espaços
+            if run.bold and run.italic:
+                run_text = f"___{run_text}___"
+            elif run.bold:
+                run_text = f"**{run_text}**"
+            elif run.italic:
+                run_text = f"_{run_text}_"
+        texto += run_text
     
     return texto
 
