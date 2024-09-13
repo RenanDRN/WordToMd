@@ -142,12 +142,31 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
         cabecalhos = [celula.text.strip() for celula in tabela.rows[0].cells]
         conteudo_markdown.append("| " + " | ".join(cabecalhos) + " |")
         conteudo_markdown.append("| " + " | ".join(["---"] * len(cabecalhos)) + " |")
+        
         # Extrair linhas da tabela
         for linha in tabela.rows[1:]:
-            dados_linha = [celula.text.strip() for celula in linha.cells]
+            dados_linha = []
+            for celula in linha.cells:
+                texto_celula = celula.text.strip()
+                
+                # Verificar se a célula contém uma imagem
+                tem_imagem = any(run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict") for run in celula.paragraphs[0].runs)
+                if tem_imagem:
+                    for run in celula.paragraphs[0].runs:
+                        if run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict"):
+                            for rId in mapa_imagens:
+                                if run._element.xpath(f".//*[@r:embed='{rId}']"):
+                                    texto_celula += mapa_imagens[rId].strip()  # Concatenar a imagem sem quebra de linha
+                                    break
+                
+                # Verificar se a célula contém um link
+                texto_celula = formatar_link(texto_celula)
+                
+                dados_linha.append(texto_celula)
+            
             conteudo_markdown.append("| " + " | ".join(dados_linha) + " |")
-        conteudo_markdown.append("\n")
-
+        conteudo_markdown.append("\n")    
+                
     contador_imagem = 1
     mapa_imagens = {}
 

@@ -2,7 +2,7 @@
 title: "Titulo da sua documentação"
 type: docs
 last_updated: 
-	date: "09/10/2024"
+	date: "09/12/2024"
 	author: "Seu nome"
 sidebar_position: 1
 ---
@@ -33,9 +33,9 @@ Texto com **negrito** e _itálico_ no meio
 
 
 
-| 1 | 2 | 3 |
+| Tabela normal | Tabela com imagem | Tabela com link |
 | --- | --- | --- |
-| 4 | 5 | 6 |
+| Texto normal | ![imagem3.png](img_exemplo\exemplo_imagem3.png) | [amazon.com.br](https://www.amazon.com.br/?tag=admarketbr-20&ref=pd_sl_efae3c8e310b0deaff6975d7265ebbeafcedc8059f4cf5d4c1c0da97) |
 
 
 
