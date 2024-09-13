@@ -36,6 +36,8 @@ Texto com **negrito** e _itálico_ no meio
 | Tabela normal | Tabela com imagem | Tabela com link |
 | --- | --- | --- |
 | Texto normal | ![imagem3.png](img_exemplo\exemplo_imagem3.png) | [amazon.com.br](https://www.amazon.com.br/?tag=admarketbr-20&ref=pd_sl_efae3c8e310b0deaff6975d7265ebbeafcedc8059f4cf5d4c1c0da97) |
+| **Negrito** |  |  |
+| _Italico_ |  |  |
 
 
 

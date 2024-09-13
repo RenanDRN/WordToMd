@@ -147,7 +147,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
         for linha in tabela.rows[1:]:
             dados_linha = []
             for celula in linha.cells:
-                texto_celula = celula.text.strip()
+                texto_celula = obter_texto_paragrafo(celula.paragraphs[0])  # Usar a função para obter o texto formatado
                 
                 # Verificar se a célula contém uma imagem
                 tem_imagem = any(run._element.xpath(".//w:drawing") or run._element.xpath(".//w:pict") for run in celula.paragraphs[0].runs)
@@ -165,8 +165,7 @@ def converter_docx_para_markdown(caminho_docx, caminho_md_saida, diretorio_image
                 dados_linha.append(texto_celula)
             
             conteudo_markdown.append("| " + " | ".join(dados_linha) + " |")
-        conteudo_markdown.append("\n")    
-                
+        conteudo_markdown.append("\n")                
     contador_imagem = 1
     mapa_imagens = {}
 
